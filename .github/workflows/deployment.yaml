@@ -1,0 +1,36 @@
+name: EKS Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Install eksctl
+      run: |
+        sudo apt-get update && sudo apt-get install -y curl
+        sudo curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | sudo tar xz -C /usr/local/bin
+
+
+    - name: Deploy to EKS
+      run: eksctl create cluster -f eks-cluster-v5.yaml --without-nodegroup
+
+    - name: Configure kubectl
+      run: aws eks update-kubeconfig --name test-cluster --region us-west-2
+
+    - name: IAM user Authorization
+      run: eksctl create iamidentitymapping --cluster test-cluster --region=us-west-2 --arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:user/arun --username arun --group system:masters --no-duplicate-arns

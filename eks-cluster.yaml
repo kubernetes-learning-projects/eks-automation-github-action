@@ -1,0 +1,29 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: test-cluster
+  region: us-west-2
+  version: "1.29"
+
+vpc:
+  subnets:
+    public:
+      us-west-2a: { id: subnet-094d01de2dd2148c0 }
+      us-west-2b: { id: subnet-04429e132a1f42826 }
+      us-west-2c: { id: subnet-028a738bdafc344c6 }
+
+nodeGroups:
+  - name: ng-spot
+    instanceType: t3.medium
+    labels: { role: builders }
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 4
+    volumeSize: 30
+    ssh:
+      allow: true
+      publicKeyName: techiescamp
+    tags:
+      Name: ng-spot
+    maxPodsPerNode:  110
