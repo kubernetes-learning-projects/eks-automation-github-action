@@ -67,8 +67,8 @@ jobs:
         sudo apt update
         sudo apt -y install python3-boto3
 
-    - name: Modify the OIDC issuer ID on the IAM Policy AmazonEKS_EBS_CSI_DriverRole
-      run: python3 eks_oidc_trust_policy_updater.py
+    # - name: Modify the OIDC issuer ID on the IAM Policy AmazonEKS_EBS_CSI_DriverRole
+    #   run: python3 eks_oidc_trust_policy_updater.py
 
     # - name: IRSA for EBS CSI Plugin
     #   run: |
