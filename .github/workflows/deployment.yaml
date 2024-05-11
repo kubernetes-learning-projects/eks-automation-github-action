@@ -70,23 +70,38 @@ jobs:
     - name: Modify the OIDC issuer ID on the IAM Policy AmazonEKS_EBS_CSI_DriverRole
       run: python3 eks_oidc_trust_policy_updater.py
 
-    - name: IRSA for EBS CSI Plugin
-      run: |
-        eksctl create iamserviceaccount \
-          --region us-west-2 \
-          --name ebs-csi-controller-sa \
-          --namespace kube-system \
-          --cluster test-cluster \
-          --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-          --approve \
-          --role-only \
-          --role-name AmazonEKS_EBS_CSI_DriverRole
+    # - name: IRSA for EBS CSI Plugin
+    #   run: |
+    #     eksctl create iamserviceaccount \
+    #       --region us-west-2 \
+    #       --name ebs-csi-controller-sa \
+    #       --namespace kube-system \
+    #       --cluster test-cluster \
+    #       --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+    #       --approve \
+    #       --role-only \
+    #       --role-name AmazonEKS_EBS_CSI_DriverRole
 
-    - name: Install AWS EBS CSI Driver
-      run: |
-        eksctl create addon --name aws-ebs-csi-driver --cluster test-cluster \
-          --service-account-role-arn arn:aws:iam::$(aws sts get-caller-identity \
-          --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole --force
+    # - name: Install AWS EBS CSI Driver
+    #   run: |
+    #     eksctl create addon --name aws-ebs-csi-driver --cluster test-cluster \
+    #       --service-account-role-arn arn:aws:iam::$(aws sts get-caller-identity \
+    #       --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole --force
 
     - name: Create a node group
       run: eksctl create nodegroup --cluster test-cluster --node-type t3.medium --max-pods-per-node 100
+
+    # - name: Install Helm    
+    #   run: |
+    #     curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+    #     sudo apt-get install apt-transport-https --yes
+    #     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+    #     sudo apt-get update
+    #     sudo apt-get install helm
+
+    - name: Install argocd
+      run: | 
+        kubectl create namespace argocd
+        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+        kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+
