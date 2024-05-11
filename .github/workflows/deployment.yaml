@@ -26,7 +26,7 @@ jobs:
         sudo curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | sudo tar xz -C /usr/local/bin
 
     - name: Deploy to EKS
-      run: eksctl create cluster -f eks-cluster-v5.yaml --without-nodegroup
+      run: eksctl create cluster -f eks-cluster.yaml --without-nodegroup
 
     - name: Configure kubectl
       run: aws eks update-kubeconfig --name test-cluster --region us-west-2
@@ -70,34 +70,34 @@ jobs:
     - name: Modify the OIDC issuer ID on the IAM Policy AmazonEKS_EBS_CSI_DriverRole
       run: python3 eks_oidc_trust_policy_updater.py
 
-    # - name: IRSA for EBS CSI Plugin
-    #   run: |
-    #     eksctl create iamserviceaccount \
-    #       --region us-west-2 \
-    #       --name ebs-csi-controller-sa \
-    #       --namespace kube-system \
-    #       --cluster test-cluster \
-    #       --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-    #       --approve \
-    #       --role-only \
-    #       --role-name AmazonEKS_EBS_CSI_DriverRole
+    - name: IRSA for EBS CSI Plugin
+      run: |
+        eksctl create iamserviceaccount \
+          --name ebs-csi-controller-sa \
+          --namespace kube-system \
+          --cluster test-cluster \
+          --role-name AmazonEKS_EBS_CSI_DriverRole \
+          --role-only \
+          --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+          --approve
+  
+    - name: Install AWS EBS CSI Driver
+      run: |
+        eksctl create addon --name aws-ebs-csi-driver \
+          --cluster test-cluster \
+          --service-account-role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/AmazonEKS_EBS_CSI_DriverRole --force
 
-    # - name: Install AWS EBS CSI Driver
-    #   run: |
-    #     eksctl create addon --name aws-ebs-csi-driver --cluster test-cluster \
-    #       --service-account-role-arn arn:aws:iam::$(aws sts get-caller-identity \
-    #       --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole --force
 
     - name: Create a node group
       run: eksctl create nodegroup --cluster test-cluster --node-type t3.medium --max-pods-per-node 100
 
-    # - name: Install Helm    
-    #   run: |
-    #     curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
-    #     sudo apt-get install apt-transport-https --yes
-    #     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-    #     sudo apt-get update
-    #     sudo apt-get install helm
+    - name: Install Helm    
+      run: |
+        curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+        sudo apt-get install apt-transport-https --yes
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+        sudo apt-get update
+        sudo apt-get install helm
 
     - name: Install argocd
       run: | 

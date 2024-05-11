@@ -13,10 +13,11 @@ vpc:
       us-west-2b: { id: subnet-04429e132a1f42826 }
       us-west-2c: { id: subnet-028a738bdafc344c6 }
 
-nodeGroups:
+managedNodeGroups:
   - name: ng-spot
     instanceType: t3.medium
     labels: { role: builders }
+    spot: true
     desiredCapacity: 2
     minSize: 2
     maxSize: 4
