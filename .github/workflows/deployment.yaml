@@ -26,7 +26,15 @@ jobs:
         sudo curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | sudo tar xz -C /usr/local/bin
 
     - name: Deploy to EKS
-      run: eksctl create cluster -f eks-cluster.yaml --without-nodegroup
+      run: |
+        if [ "${{ github.event.inputs.action }}" = "apply" ]; then
+            eksctl create cluster -f eks-cluster.yaml --without-nodegroup
+          elif [ "${{ github.event.inputs.action }}" = "destroy" ]; then
+            eksctl delete cluster --name=test-cluster --region=us-west-2
+          else
+            echo "Invalid action specified."
+            exit 1
+          fi
 
     - name: Configure kubectl
       run: aws eks update-kubeconfig --name test-cluster --region us-west-2
