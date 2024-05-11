@@ -70,16 +70,16 @@ jobs:
     - name: Modify the OIDC issuer ID on the IAM Policy AmazonEKS_EBS_CSI_DriverRole
       run: python3 eks_oidc_trust_policy_updater.py
 
-    - name: IRSA for EBS CSI Plugin
-      run: |
-        eksctl create iamserviceaccount \
-          --name ebs-csi-controller-sa \
-          --namespace kube-system \
-          --cluster test-cluster \
-          --role-name AmazonEKS_EBS_CSI_DriverRole \
-          --role-only \
-          --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-          --approve
+    # - name: IRSA for EBS CSI Plugin
+    #   run: |
+    #     eksctl create iamserviceaccount \
+    #       --name ebs-csi-controller-sa \
+    #       --namespace kube-system \
+    #       --cluster test-cluster \
+    #       --role-name AmazonEKS_EBS_CSI_DriverRole \
+    #       --role-only \
+    #       --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+    #       --approve
   
     - name: Install AWS EBS CSI Driver
       run: |
