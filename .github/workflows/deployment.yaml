@@ -81,11 +81,11 @@ jobs:
     #       --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
     #       --approve
   
-    - name: Install AWS EBS CSI Driver
-      run: |
-        eksctl create addon --name aws-ebs-csi-driver \
-          --cluster test-cluster \
-          --service-account-role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/AmazonEKS_EBS_CSI_DriverRole --force
+    # - name: Install AWS EBS CSI Driver
+    #   run: |
+    #     eksctl create addon --name aws-ebs-csi-driver \
+    #       --cluster test-cluster \
+    #       --service-account-role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/AmazonEKS_EBS_CSI_DriverRole --force
 
 
     - name: Create a node group
