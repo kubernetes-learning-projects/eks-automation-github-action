@@ -5,6 +5,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: first-step
-        run: echo "Hello world"
+        run: |
+            echo "First line of multi line"
+            echo "Second line of multi line"
       - name: second-step
         run: echo "Can we start ?"
