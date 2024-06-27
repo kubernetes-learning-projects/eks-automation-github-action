@@ -9,8 +9,8 @@ jobs:
 
       - name: Install eksctl
         run: |
-            curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-            mv /tmp/eksctl /usr/local/bin
+          curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -21,8 +21,9 @@ jobs:
 
       - name: Checking Tools Versions
         run: |
+            ls -al
             helm version
             aws --version
             kubectl version
             ls -al 
-            eksctl version 
+        
