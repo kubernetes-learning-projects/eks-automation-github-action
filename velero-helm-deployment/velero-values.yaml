@@ -17,4 +17,4 @@ credentials:
 serviceAccount:
   server:
     annotations:
-      eks.amazonaws.com/role-arn: "arn:aws:iam::{{ .Values.AWS_ACCOUNT_ID }}:role/eks-velero-backup"
+      eks.amazonaws.com/role-arn: "arn:aws:iam::11111111111:role/eks-velero-backup"
