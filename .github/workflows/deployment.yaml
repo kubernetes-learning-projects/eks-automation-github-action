@@ -1,7 +1,7 @@
 name: eks-automation
 on: workflow_dispatch
 jobs:
-  first-job:
+  cluster-deployment:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -29,4 +29,18 @@ jobs:
         if: env.EXISTING_CLUSTERS == ''
         run: |
           eksctl create cluster -f eks-cluster.yaml
+
+  argocd-deployment:
+    needs: cluster-deployment
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: argocd-installation
+        run: |
+            kubectl create namespace argocd 
+            helm install --values argocd-helm-deployment/argocd-values.yaml --namespace argocd 
+
+
         
