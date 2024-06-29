@@ -9,9 +9,9 @@ metadata:
 vpc:
   subnets:
     public:
-      # us-west-2a: { id: subnet-094d01de2dd2148c0 }
-      # us-west-2b: { id: subnet-04429e132a1f42826 }
-      # us-west-2c: { id: subnet-028a738bdafc344c6 }
+      us-west-2a: { id: subnet-094d01de2dd2148c0 }
+      us-west-2b: { id: subnet-04429e132a1f42826 }
+      us-west-2c: { id: subnet-028a738bdafc344c6 }
 
 managedNodeGroups:
   - name: ng-spot
