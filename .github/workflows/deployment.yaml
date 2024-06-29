@@ -51,7 +51,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: argocd-installation
+      - name: Update Kubeconfig
+        run: aws eks update-kubeconfig --region us-west-2 --name test-cluster  
+
+      - name: Argocd Installation
         run: |
             kubectl create namespace argocd 
             helm install --values argocd-helm-deployment/argocd-values.yaml --namespace argocd 
