@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/kubernetes-learning-projects/eks-automation-github-action.git'
+    targetRevision: HEAD
+    path: velero-helm-deployment
+    helm:
+      valueFiles:
+        - velero-values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: velero
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
