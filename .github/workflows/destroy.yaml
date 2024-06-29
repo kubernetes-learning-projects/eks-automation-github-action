@@ -1,0 +1,26 @@
+name: eks-automation
+on: workflow_dispatch
+jobs:
+  cluster-deployment:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install eksctl
+        run: |
+          curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Update Kubeconfig
+        run: aws eks update-kubeconfig --region us-west-2 --name test-cluster
+
+      - name: Check for Existing EKS Clusters
+        run: eksctl delete cluster -f eks-cluster.yaml
