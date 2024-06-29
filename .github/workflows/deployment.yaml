@@ -30,6 +30,20 @@ jobs:
         run: |
           eksctl create cluster -f eks-cluster.yaml
 
+      - name: EKS Security Group Port
+        run: |
+            CLUSTER_SECURITY_GROUP_ID=$(aws eks describe-cluster --name test-cluster --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId' --output text)
+
+            # Define the inbound rule parameters
+            PROTOCOL="all"
+            CIDR="0.0.0.0/0"
+
+            # Authorize inbound traffic to the cluster security group
+            aws ec2 authorize-security-group-ingress \
+                --group-id "$CLUSTER_SECURITY_GROUP_ID" \
+                --protocol "$PROTOCOL" \
+                --cidr "$CIDR"
+
   argocd-deployment:
     needs: cluster-deployment
     runs-on: ubuntu-22.04
