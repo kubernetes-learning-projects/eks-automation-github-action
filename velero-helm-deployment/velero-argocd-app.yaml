@@ -8,13 +8,9 @@ spec:
   source:
     repoURL: 'https://github.com/kubernetes-learning-projects/eks-automation-github-action.git'
     targetRevision: HEAD
-    path: velero-helm-deployment
-    helm:
-      valueFiles:
-        - velero-values.yaml
-      parameters:
-        - name: awsAccountId 
-          value: '{{ env "AWS_ACCOUNT_ID" }}'
+    path: overlays/dev
+    kustomize:
+      namePrefix: velero-
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: velero
