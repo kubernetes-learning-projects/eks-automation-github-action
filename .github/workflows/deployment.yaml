@@ -19,7 +19,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
 
-      - name: Deploy EKS Cluster
+      - name: Check for Existing EKS Clusters
+        id: check-cluster
         run: |
-            eksctl create cluster -f eks-cluster.yaml
+          EXISTING_CLUSTERS=$(aws eks list-clusters --region us-west-2 --query "clusters" --output text)
+          echo "EXISTING_CLUSTERS=${EXISTING_CLUSTERS}" >> $GITHUB_ENV
+
+      - name: Deploy EKS Cluster
+        if: env.EXISTING_CLUSTERS == ''
+        run: |
+          eksctl create cluster -f eks-cluster.yaml
         
