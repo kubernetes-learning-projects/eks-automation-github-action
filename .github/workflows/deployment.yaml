@@ -32,17 +32,28 @@ jobs:
 
       - name: EKS Security Group Port
         run: |
-            CLUSTER_SECURITY_GROUP_ID=$(aws eks describe-cluster --name test-cluster --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId' --output text)
+            CLUSTER_NAME="test-cluster"
+            CLUSTER_SECURITY_GROUP_ID=$(aws eks describe-cluster --name $CLUSTER_NAME --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId' --output text)
 
             # Define the inbound rule parameters
             PROTOCOL="all"
             CIDR="0.0.0.0/0"
 
-            # Authorize inbound traffic to the cluster security group
-            aws ec2 authorize-security-group-ingress \
+            # Check if the security group rule already exists
+            RULE_EXISTS=$(aws ec2 describe-security-groups \
+                --group-ids "$CLUSTER_SECURITY_GROUP_ID" \
+                --query "SecurityGroups[0].IpPermissions[?IpRanges[?CidrIp=='$CIDR'] && IpProtocol=='$PROTOCOL']" \
+                --output text)
+
+            if [ -z "$RULE_EXISTS" ]; then
+              echo "Security group rule does not exist, creating rule..."
+              aws ec2 authorize-security-group-ingress \
                 --group-id "$CLUSTER_SECURITY_GROUP_ID" \
                 --protocol "$PROTOCOL" \
                 --cidr "$CIDR"
+            else
+              echo "Security group rule already exists, skipping creation."
+            fi
 
   argocd-deployment:
     needs: cluster-deployment
@@ -58,6 +69,3 @@ jobs:
         run: |
             kubectl create namespace argocd 
             helm install --values argocd-helm-deployment/argocd-values.yaml --namespace argocd 
-
-
-        
