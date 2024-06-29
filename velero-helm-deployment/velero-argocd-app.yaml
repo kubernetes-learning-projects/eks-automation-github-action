@@ -12,6 +12,9 @@ spec:
     helm:
       valueFiles:
         - velero-values.yaml
+      parameters:
+        - name: awsAccountId 
+          value: '{{ env "AWS_ACCOUNT_ID" }}'
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: velero
