@@ -54,4 +54,24 @@ jobs:
             else 
               kubectl create namespace argocd 
             fi
-            helm install --values argocd-helm-deployment/argocd-values.yaml --namespace argocd argocd ./argocd-helm-deployment
+            helm repo add argo https://argoproj.github.io/argo-helm
+            helm install --values argocd-helm-deployment/argocd-values.yaml argocd argo/argo-cd --namespace argocd 
+
+  app-of-apps:
+    needs: argocd-deployment
+    runs-on: ubuntu-22.04
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Update Kubeconfig
+        run: aws eks update-kubeconfig --region us-west-2 --name test-cluster
+
+
