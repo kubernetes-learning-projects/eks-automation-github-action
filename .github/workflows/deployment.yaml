@@ -49,5 +49,9 @@ jobs:
 
       - name: Argocd Installation
         run: |
-            kubectl create namespace argocd 
+            if kubectl get ns argocd >/dev/null 2>&1; then
+              echo "Namespace 'argocd' already exists, skipping creation."
+            else 
+              kubectl create namespace argocd 
+            fi
             helm install --values argocd-helm-deployment/argocd-values.yaml --namespace argocd argocd ./argocd-helm-deployment
