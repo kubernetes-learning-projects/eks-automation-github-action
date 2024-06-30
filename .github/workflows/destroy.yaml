@@ -1,7 +1,7 @@
-name: eks-automation
+name: eks-automation-reverse
 on: workflow_dispatch
 jobs:
-  cluster-deployment:
+  cluster-destruction:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
