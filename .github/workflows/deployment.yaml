@@ -55,7 +55,14 @@ jobs:
               kubectl create namespace argocd 
             fi
             helm repo add argo https://argoproj.github.io/argo-helm
-            helm install --values argocd-helm-deployment/argocd-values.yaml argocd argo/argo-cd --namespace argocd 
+            helm repo update
+            if helm ls -n argocd | grep -q argocd; then
+                echo "Release 'argocd' already exists, upgrading it."
+                helm upgrade --values argocd-helm-deployment/argocd-values.yaml argocd argo/argo-cd --namespace argocd
+            else
+                echo "Installing release 'argocd'."
+                helm install --values argocd-helm-deployment/argocd-values.yaml argocd argo/argo-cd --namespace argocd
+            fi
 
   app-of-apps:
     needs: argocd-deployment
