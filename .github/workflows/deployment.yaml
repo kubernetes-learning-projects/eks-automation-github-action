@@ -30,44 +30,6 @@ jobs:
         run: |
           eksctl create cluster -f eks-cluster.yaml
 
-      - name: Check if Security Group Rule Exists
-        id: check-sg-rule
-        run: |
-          CLUSTER_NAME="test-cluster"
-          CLUSTER_SECURITY_GROUP_ID=$(aws eks describe-cluster --name $CLUSTER_NAME --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId' --output text)
-
-          # Define the inbound rule parameters
-          PROTOCOL="all"
-          CIDR="0.0.0.0/0"
-
-          # Check if the security group rule already exists
-          RULE_EXISTS=$(aws ec2 describe-security-groups \
-              --group-ids "$CLUSTER_SECURITY_GROUP_ID" \
-              --query "SecurityGroups[0].IpPermissions[?IpProtocol=='$PROTOCOL' && IpRanges[?CidrIp=='$CIDR']] | length(@)" \
-              --output text)
-
-          if [ "$RULE_EXISTS" -eq "0" ]; then
-            echo "SG_RULE_EXISTS=false" >> $GITHUB_ENV
-          else
-            echo "SG_RULE_EXISTS=true" >> $GITHUB_ENV
-          fi
-
-      - name: EKS Security Group Port
-        if: env.SG_RULE_EXISTS == 'false'
-        run: |
-          CLUSTER_NAME="test-cluster"
-          CLUSTER_SECURITY_GROUP_ID=$(aws eks describe-cluster --name $CLUSTER_NAME --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId' --output text)
-
-          # Define the inbound rule parameters
-          PROTOCOL="all"
-          CIDR="0.0.0.0/0"
-
-          echo "Security group rule does not exist, creating rule..."
-          aws ec2 authorize-security-group-ingress \
-            --group-id "$CLUSTER_SECURITY_GROUP_ID" \
-            --protocol "$PROTOCOL" \
-            --cidr "$CIDR"
-
   argocd-deployment:
     needs: cluster-deployment
     runs-on: ubuntu-22.04
