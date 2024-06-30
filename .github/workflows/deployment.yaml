@@ -43,10 +43,10 @@ jobs:
           # Check if the security group rule already exists
           RULE_EXISTS=$(aws ec2 describe-security-groups \
               --group-ids "$CLUSTER_SECURITY_GROUP_ID" \
-              --query "SecurityGroups[0].IpPermissions[?IpProtocol=='$PROTOCOL' && IpRanges[?CidrIp=='$CIDR']]" \
+              --query "SecurityGroups[0].IpPermissions[?IpProtocol=='$PROTOCOL' && IpRanges[?CidrIp=='$CIDR']] | length(@)" \
               --output text)
 
-          if [ -z "$RULE_EXISTS" ]; then
+          if [ "$RULE_EXISTS" -eq "0" ]; then
             echo "SG_RULE_EXISTS=false" >> $GITHUB_ENV
           else
             echo "SG_RULE_EXISTS=true" >> $GITHUB_ENV
